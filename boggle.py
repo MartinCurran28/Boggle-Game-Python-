@@ -37,16 +37,17 @@ def all_grid_neighbours(grid):
 def path_to_word(grid, path):
     return ''.join([grid[p] for p in path])
     
-    
 def search(grid, dictionary):
     neighbours = all_grid_neighbours(grid)
     paths = []
+    full_words, stems = dictionary 
     
     def do_search(path):
         word = path_to_word(grid, path)
-        if word in dictionary:
+        if word in full_words:
             paths.append(path)
-            
+        if word not in stems:
+            return
         for next_pos in neighbours[path[-1]]:
            if next_pos not in path:
               do_search(path + [next_pos])
@@ -60,8 +61,34 @@ def search(grid, dictionary):
     return set(words)    
     
 def get_dictionary(dictionary_file):
+    
+    full_words, stems = set(), set()
+    
     with open (dictionary_file) as f:
-        return[w.strip().upper() for w in f]
+        for word in f:
+            word = word.strip().upper()
+            full_words.add(word)
+            
+            for i in range(1, len(word)):
+                stems.add(word[:i])
+                
+    return full_words, stems
+        
+def main():
+    
+    grid = make_grid(4, 4)
+    dictionary = get_dictionary('words.txt')
+    words = search(grid, dictionary)
+    for word in words:
+        print(word)
+        
+    print("found %s words" % len(words))
+    
+if __name__ == "__main__":
+    main()
+    
+    
+    
         
         
         
